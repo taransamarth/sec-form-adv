@@ -6,6 +6,7 @@ from concurrent.futures import ThreadPoolExecutor
 import numpy as np
 from multiprocessing import Pool
 
+# Get link to the Form ADV, given a CRD
 def get_manager_sec_adv_actual_url(crd = 107322, url=None):
     if crd is None and url is None:
       raise ValueError('Need crd (arg1) or selector URL (arg2)')
@@ -15,15 +16,18 @@ def get_manager_sec_adv_actual_url(crd = 107322, url=None):
     actual_url = response.url
     return actual_url
 
+# Parse a page
 def get_html_page(url='https://files.adviserinfo.sec.gov/IAPD/content/viewform/adv/sections/iapd_AdvIdentifyingInfoSection.aspx?ORG_PK=107322&FLNG_PK=00CCBCEE000801D30066B11104991C75056C8CC0'):
     response = requests.get(url)
     page = BeautifulSoup(response.content, 'html.parser')
     return page
 
+# Parse manager name from page
 def get_mgr_name(page):
   mgr_name = page.select_one('.summary-displayname').get_text()
   return mgr_name
 
+# Get url to the private fund section of Form ADV
 def parse_pf_url(crd = 107322, url=None, manager=None, return_wide=False):
     if crd is None and url is not None:
       idCRD = int(url.split('?ORG_PK=')[1])
@@ -40,6 +44,7 @@ def parse_pf_url(crd = 107322, url=None, manager=None, return_wide=False):
     pf_sec = re.sub('\s+',' ',[i for i in secs if "Private" in i][0]).strip()
     return [mgr_name, pf_sec]
 
+# Parse PFs from ADV
 def collect_pf_data(pf_url = "https://files.adviserinfo.sec.gov/IAPD/content/viewform/adv/Sections/iapd_AdvPrivateFundReportingSection.aspx?ORG_PK=107322&FLNG_PK=00CCBCEE000801D30066B11104991C75056C8CC0"):
     main = get_html_page(pf_url).select('.main div')
     all_div_ids = [div['id'] for div in main if div.has_attr('id')]
@@ -57,6 +62,7 @@ def collect_pf_data(pf_url = "https://files.adviserinfo.sec.gov/IAPD/content/vie
       fund_names += [fund_name]
     return fund_names
 
+# Convert file of CRDS to list
 def file_to_list(name):
   lst = pd.read_csv(name)
   return lst[lst.columns[2]].values.tolist()
@@ -87,9 +93,6 @@ def harvest_fund_names_parallel(crd_list):
         results = list(executor.map(harvest_fund_names_wrapper, crd_list))
     # df = concat_dataframes(results)
     return results
-
-# Load CRDs from the file
-# crds = file_to_list("big_firms.csv")
 
 if __name__ == '__main__':
     crds = pd.read_csv("newcrds.csv")
