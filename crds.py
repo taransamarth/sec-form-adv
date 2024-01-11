@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup
 import requests
 import re
 import pandas as pd
-from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import ThreadPoolExecutor
 import numpy as np
 from multiprocessing import Pool
 
@@ -83,14 +83,18 @@ def concat_dataframes(df_list):
   return result
 
 def harvest_fund_names_parallel(crd_list):
-    with ProcessPoolExecutor() as executor:
+    with ThreadPoolExecutor() as executor:
         results = list(executor.map(harvest_fund_names_wrapper, crd_list))
-    df = concat_dataframes(results)
-    return df
+    # df = concat_dataframes(results)
+    return results
 
 # Load CRDs from the file
-crds = file_to_list("big_firms.csv")
+# crds = file_to_list("big_firms.csv")
 
 if __name__ == '__main__':
+    crds = pd.read_csv("newcrds.csv")
+    crds = list(crds['x'])
     df_parallel = harvest_fund_names_parallel(crds)
-    df_parallel.to_csv("finished.csv")
+    for df in df_parallel:
+      print("Concatenating a dataframe...")
+      df.to_csv("funds.csv", mode = 'a', header = None, index = False)
