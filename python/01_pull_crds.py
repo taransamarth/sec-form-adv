@@ -6,6 +6,7 @@ import numpy as np
 import zipfile
 import os
 import io
+from datetime import datetime
 
 # Headers
 headers = {
@@ -64,5 +65,5 @@ for zip_link in zip_links:
 crds = extract_crds(extract_dir)
 
 # Write CRDs to file
-crds.to_csv("data/crds.csv")
+crds.to_csv("data/" + datetime.now().strftime("%Y-%m") + "/crds.csv")
 
