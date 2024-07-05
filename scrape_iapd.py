@@ -6,7 +6,6 @@ from concurrent.futures import ThreadPoolExecutor
 import numpy as np
 from multiprocessing import Pool
 
-# Get link to the Form ADV, given a CRD
 def get_manager_sec_adv_actual_url(crd = 107322, url=None):
     if crd is None and url is None:
       raise ValueError('Need crd (arg1) or selector URL (arg2)')
@@ -16,18 +15,15 @@ def get_manager_sec_adv_actual_url(crd = 107322, url=None):
     actual_url = response.url
     return actual_url
 
-# Parse a page
 def get_html_page(url='https://files.adviserinfo.sec.gov/IAPD/content/viewform/adv/sections/iapd_AdvIdentifyingInfoSection.aspx?ORG_PK=107322&FLNG_PK=00CCBCEE000801D30066B11104991C75056C8CC0'):
     response = requests.get(url)
     page = BeautifulSoup(response.content, 'html.parser')
     return page
 
-# Parse manager name from page
 def get_mgr_name(page):
   mgr_name = page.select_one('.summary-displayname').get_text()
   return mgr_name
 
-# Get url to the private fund section of Form ADV
 def parse_pf_url(crd = 107322, url=None, manager=None, return_wide=False):
     if crd is None and url is not None:
       idCRD = int(url.split('?ORG_PK=')[1])
@@ -44,25 +40,25 @@ def parse_pf_url(crd = 107322, url=None, manager=None, return_wide=False):
     pf_sec = re.sub('\s+',' ',[i for i in secs if "Private" in i][0]).strip()
     return [mgr_name, pf_sec]
 
-# Parse PFs from ADV
-def collect_pf_data(pf_url = "https://files.adviserinfo.sec.gov/IAPD/content/viewform/adv/Sections/iapd_AdvPrivateFundReportingSection.aspx?ORG_PK=107322&FLNG_PK=00CCBCEE000801D30066B11104991C75056C8CC0"):
+def collect_pf_data(pf_url = "https://files.adviserinfo.sec.gov/IAPD/content/viewform/adv/Sections/iapd_AdvPrivateFundReportingSection.aspx?ORG_PK=107322&FLNG_PK=00465EE2000801D70086952104D67719056C8CC0"):
     main = get_html_page(pf_url).select('.main div')
     all_div_ids = [div['id'] for div in main if div.has_attr('id')]
     all_div_ids = list(set(filter(None, all_div_ids)))
     page_table_nodes = [f"#{div_id}" for div_id in all_div_ids if re.search("pnlFund", div_id)]
     content = BeautifulSoup(requests.get(pf_url).content, 'html.parser')
-    fund_names = []
+    df = pd.DataFrame(columns=['name', 'id', 'juris', 'type', 'gross', 'owners'])
     for id in page_table_nodes:
       div = content.find("div", {"id": str(id[1:])})
-      fund_name = div.select_one('td:-soup-contains("Name of the") span')
-      if fund_name is not None:
-        fund_name = fund_name.get_text()
-      else:
-        fund_name = "Unidentified"
-      fund_names += [fund_name]
-    return fund_names
+      spans = div.select('span')
+      fund_name = spans[0].get_text() if spans[0] is not None else "Unidentified"
+      fund_number = spans[1].get_text() if spans[1] is not None else "Unidentified"
+      juris = spans[3].get_text() if spans[1] is not None else "Unidentified"
+      gross = re.sub(r'\D', '', div.find('td', text = lambda text: text and "11." in text).find_next('span').get_text()) if div.find('td', text = lambda text: text and "11." in text).find_next('span').text is not None else "Unidentified"
+      owners = div.find('td', text = lambda text: text and "13." in text).find_next('span').get_text() if spans[19] is not None else "Unidentified"
+      fund_type = div.find('td', text = lambda text: text and "10." in text).find_next('img', alt=lambda alt: alt and 'selected, changed' in alt).find_next_sibling(text=True).strip()
+      df.loc[len(df)] = [fund_name, fund_number, juris, fund_type, gross, owners]
+    return df
 
-# Convert file of CRDS to list
 def file_to_list(name):
   lst = pd.read_csv(name)
   return lst[lst.columns[2]].values.tolist()
@@ -95,9 +91,11 @@ def harvest_fund_names_parallel(crd_list):
     return results
 
 if __name__ == '__main__':
-    crds = pd.read_csv("newcrds.csv")
+    crds = pd.read_csv("crds.csv")
     crds = list(crds['x'])
     df_parallel = harvest_fund_names_parallel(crds)
     for df in df_parallel:
       print("Concatenating a dataframe...")
       df.to_csv("funds.csv", mode = 'a', header = None, index = False)
+
+
