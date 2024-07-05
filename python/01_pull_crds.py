@@ -64,5 +64,5 @@ for zip_link in zip_links:
 crds = extract_crds(extract_dir)
 
 # Write CRDs to file
-crds.to_csv("crds.csv")
+crds.to_csv("data-out/crds.csv")
 
