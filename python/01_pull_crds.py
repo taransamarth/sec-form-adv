@@ -63,6 +63,9 @@ for zip_link in zip_links:
 # Extract the first column from each Excel file
 crds = extract_crds(extract_dir)
 
+# DEBUG
+print(os.getcwd())
+
 # Write CRDs to file
 crds.to_csv("data-out/crds.csv")
 
