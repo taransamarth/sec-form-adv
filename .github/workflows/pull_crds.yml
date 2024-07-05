@@ -28,4 +28,4 @@ jobs:
           pip install numpy
       
       - name: Run Python script
-        run: python python/01_pull_crds.py
+        run: python -u python/01_pull_crds.py
