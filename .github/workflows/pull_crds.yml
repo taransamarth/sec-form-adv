@@ -26,6 +26,7 @@ jobs:
           pip install requests
           pip install pandas
           pip install numpy
+          pip install openpyxl
       
       - name: Run Python script
         run: python -u python/01_pull_crds.py
