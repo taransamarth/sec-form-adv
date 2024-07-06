@@ -56,7 +56,7 @@ def collect_pf_data(pf_url = "https://files.adviserinfo.sec.gov/IAPD/content/vie
       juris = spans[3].get_text() if spans[1] is not None else "Unidentified"
       gross = re.sub(r'\D', '', div.find('td', string = lambda text: text and "11." in text).find_next('span').get_text()) if div.find('td', string = lambda text: text and "11." in text).find_next('span').text is not None else "Unidentified"
       owners = div.find('td', string = lambda text: text and "13." in text).find_next('span').get_text() if spans[19] is not None else "Unidentified"
-      fund_type = div.find('td', string = lambda text: text and "10." in text).find_next('img', alt=lambda alt: alt and 'selected, changed' in alt).find_next_sibling(text=True).strip()
+      fund_type = div.find('td', string = lambda text: text and "10." in text).find_next('img', alt=lambda alt: alt and 'selected, changed' in alt).find_next_sibling(string=True).strip()
       df.loc[len(df)] = [fund_name, fund_number, juris, fund_type, gross, owners]
     return df
 
