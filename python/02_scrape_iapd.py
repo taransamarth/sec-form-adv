@@ -91,10 +91,10 @@ def harvest_fund_names_parallel(crd_list):
     return results
 
 if __name__ == '__main__':
-    crds = pd.read_csv("crds.csv")
+    date_dir = "data/" + datetime.now().strftime("%Y-%m")
+    crds = pd.read_csv(date_dir + "/crds.csv")
     crds = list(crds['x'])
     df_parallel = harvest_fund_names_parallel(crds)
-    date_dir = "data/" + datetime.now().strftime("%Y-%m")
     for df in df_parallel:
       print("Concatenating a dataframe...")
       df.to_csv(date_dir + "/funds.csv", mode = 'a', header = None, index = False)
