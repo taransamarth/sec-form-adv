@@ -1,8 +1,9 @@
 name: Pull CRDs
 
-on: workflow_dispatch
-#  schedule:
-#    - cron: '0 0 6 * *'
+on: 
+  workflow_dispatch
+  schedule:
+    - cron: '0 0 6 * *'
 
 
 jobs:
@@ -12,12 +13,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-
-      - name: Create folder for month
-        run: |
-          FOLDER_NAME=$(date +'%Y-%m')
-          mkdir -p data/$FOLDER_NAME
-          echo "Created folder: $FOLDER_NAME"
 
       - name: Set up Python
         uses: actions/setup-python@v5 
