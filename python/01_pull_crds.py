@@ -64,6 +64,10 @@ for zip_link in zip_links:
 # Extract the first column from each Excel file
 crds = extract_crds(extract_dir)
 
+# Directory to save the CRD file
+date_dir = "data/" + datetime.now().strftime("%Y-%m")
+os.makedirs(date_dir, exist_ok=True)
+
 # Write CRDs to file
-crds.to_csv("data/" + datetime.now().strftime("%Y-%m") + "/crds.csv")
+crds.to_csv(date_dir + "/crds.csv")
 
