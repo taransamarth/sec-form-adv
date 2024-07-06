@@ -47,7 +47,7 @@ def collect_pf_data(pf_url = "https://files.adviserinfo.sec.gov/IAPD/content/vie
     all_div_ids = list(set(filter(None, all_div_ids)))
     page_table_nodes = [f"#{div_id}" for div_id in all_div_ids if re.search("pnlFund", div_id)]
     content = BeautifulSoup(requests.get(pf_url).content, 'html.parser')
-    df = pd.DataFrame(columns=['name', 'id', 'juris', 'type', 'gross', 'owners'])
+    df = pd.DataFrame(columns=['Fund', 'id', 'juris', 'type', 'gross', 'owners'])
     for id in page_table_nodes:
       div = content.find("div", {"id": str(id[1:])})
       spans = div.select('span')
@@ -72,7 +72,8 @@ def harvest_fund_names_wrapper(crd):
       pfurl = pfurl[1]
       names = collect_pf_data(pfurl)
       if len(names) > 0:
-        df2 = pd.DataFrame({'Firm': [mgr_name] * len(names), 'Fund': names})
+        names.insert(0, 'Firm', [mgr_name] * len(names))
+        df2 = names
       else:
         df2
       print(str(crd) + " has " + str(len(names)) + " funds.")
