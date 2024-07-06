@@ -5,7 +5,7 @@ import pandas as pd
 from concurrent.futures import ThreadPoolExecutor
 import numpy as np
 from multiprocessing import Pool
-import datetime
+from datetime import datetime
 
 def get_manager_sec_adv_actual_url(crd = 107322, url=None):
     if crd is None and url is None:
