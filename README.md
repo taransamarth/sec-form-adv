@@ -10,7 +10,11 @@ This tool was built by divestment organizers opposing investments by institution
 `data` stores all data produced, including the master dataset of fund-firm pairings (`data/XX-20XX/funds.csv`). The dataset is reconstructed on a monthly basis, and all previous versions are archived.
 
 
-`python` stores all code used to construct the dataset. `01_pull_crds.py` retrieves all active Central Registration Depository (CRD) identifiers from the SEC. `02_scrape_iapd.py` pulls the registration filing for each firm CRD from the IAPD and constructs the master dataset of fund-firm pairings. `03_match_names.py` is an example of an application for the dataset, in which a list of LP names (obtained from Yale University's tax filings) are fuzzily-matched against the fund-firm dataset to reveal some of the investment partners behind the Yale endowment.
+`python` stores all code used to construct the dataset. 
+
+- `01_pull_crds.py` retrieves all active Central Registration Depository (CRD) identifiers from the SEC.
+- `02_scrape_iapd.py` pulls the registration filing for each firm CRD from the IAPD and constructs the master dataset of fund-firm pairings.
+- `03_match_names.py` is an example of an application for the dataset, in which a list of LP names (obtained from Yale University's tax filings) are fuzzily-matched against the fund-firm dataset to reveal some of the investment partners behind the Yale endowment.
 
 
 `.github/workflows` stores the two key automated actions that build the dataset on a monthly basis. `pull_crds.yml` automates `python/01_pull_crds.py`, and `build.yml` automates `02_scrape_iapd.py`.
