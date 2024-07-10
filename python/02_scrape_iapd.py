@@ -98,7 +98,7 @@ if __name__ == '__main__':
     crds = pd.read_csv(date_dir + "/crds.csv")
     crds = list(crds['0'])[1:10]
     df_parallel = harvest_fund_names_parallel(crds)
-    pd.DataFrame(columns = ["firm_name", "fund_name", "fund_id", "country", "fund_type", "gross", "num_owners"]).to_csv(date_dir + "/funds.csv", mode = 'a', header = True, index = False)
+    pd.DataFrame(columns = ["crd", "firm_name", "fund_name", "fund_id", "country", "fund_type", "gross", "num_owners"]).to_csv(date_dir + "/funds.csv", mode = 'a', header = True, index = False)
     for df in df_parallel:
       print("Concatenating a dataframe...")
       df.to_csv(date_dir + "/funds.csv", mode = 'a', header = None, index = False)
