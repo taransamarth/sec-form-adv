@@ -9,7 +9,7 @@ on:
 jobs:
   run-python-script:
     runs-on: self-hosted
-    timeout-minutes: 2880
+    timeout-minutes: 3500
     
     steps:
       - name: Checkout code
