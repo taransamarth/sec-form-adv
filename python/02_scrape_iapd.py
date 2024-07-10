@@ -73,6 +73,7 @@ def harvest_fund_names_wrapper(crd):
       names = collect_pf_data(pfurl)
       if len(names) > 0:
         names.insert(0, 'Firm', [mgr_name] * len(names))
+        names.insert(0, 'CRD', [crd] * len(names))
         df2 = names
       else:
         df2
@@ -97,6 +98,7 @@ if __name__ == '__main__':
     crds = pd.read_csv(date_dir + "/crds.csv")
     crds = list(crds['0'])[1:10]
     df_parallel = harvest_fund_names_parallel(crds)
+    pd.DataFrame(columns = ["firm_name", "fund_name", "fund_id", "country", "fund_type", "gross", "num_owners"]).to_csv(date_dir + "/funds.csv", mode = 'a', header = True, index = False)
     for df in df_parallel:
       print("Concatenating a dataframe...")
       df.to_csv(date_dir + "/funds.csv", mode = 'a', header = None, index = False)
