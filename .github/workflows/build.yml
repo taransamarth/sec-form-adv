@@ -28,6 +28,7 @@ jobs:
           pip install numpy
           pip install openpyxl
           pip install futures
+          pip install requests-random-user-agent
       
       - name: Run Python script
         run: python -u python/02_scrape_iapd.py
