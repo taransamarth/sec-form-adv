@@ -6,6 +6,7 @@ from concurrent.futures import ThreadPoolExecutor
 import numpy as np
 from multiprocessing import Pool
 from datetime import datetime
+import requests_random_user_agent
 
 def get_manager_sec_adv_actual_url(crd = 107322, url=None):
     if crd is None and url is None:
@@ -19,6 +20,12 @@ def get_manager_sec_adv_actual_url(crd = 107322, url=None):
 def get_html_page(url='https://files.adviserinfo.sec.gov/IAPD/content/viewform/adv/sections/iapd_AdvIdentifyingInfoSection.aspx?ORG_PK=107322&FLNG_PK=00CCBCEE000801D30066B11104991C75056C8CC0'):
     response = requests.get(url)
     page = BeautifulSoup(response.content, 'html.parser')
+    while page(text=re.compile('Automated access')):
+      print("Access blocked... waiting 10 seconds.")
+      s = requests.Session()
+      time.sleep(10)
+      response = requests.get(url)
+      page = BeautifulSoup(response.content, 'html.parser')
     return page
 
 def get_mgr_name(page):
@@ -47,6 +54,11 @@ def collect_pf_data(pf_url = "https://files.adviserinfo.sec.gov/IAPD/content/vie
     all_div_ids = list(set(filter(None, all_div_ids)))
     page_table_nodes = [f"#{div_id}" for div_id in all_div_ids if re.search("pnlFund", div_id)]
     content = BeautifulSoup(requests.get(pf_url).content, 'html.parser')
+    while content(text=re.compile('Automated access')):
+      print("Access blocked... waiting 10 seconds.")
+      s = requests.Session()
+      time.sleep(10)
+      content = BeautifulSoup(requests.get(pf_url).content, 'html.parser')
     df = pd.DataFrame(columns=['Fund', 'id', 'juris', 'type', 'gross', 'owners'])
     for id in page_table_nodes:
       div = content.find("div", {"id": str(id[1:])})
@@ -97,6 +109,7 @@ if __name__ == '__main__':
     date_dir = "data/" + datetime.now().strftime("%Y-%m")
     crds = pd.read_csv(date_dir + "/crds.csv")
     crds = list(crds['0'])
+    s = requests.Session()
     df_parallel = harvest_fund_names_parallel(crds)
     pd.DataFrame(columns = ["crd", "firm_name", "fund_name", "fund_id", "country", "fund_type", "gross", "num_owners"]).to_csv(date_dir + "/funds.csv", mode = 'a', header = True, index = False)
     for df in df_parallel:
