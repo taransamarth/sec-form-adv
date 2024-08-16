@@ -8,6 +8,7 @@ import os
 import io
 from datetime import datetime
 import time
+import requests-random-user-agent
 
 # Function to download the zip file and extract its contents
 def download_excel(url, extract_to='extracted'):
