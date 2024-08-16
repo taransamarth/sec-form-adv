@@ -12,7 +12,7 @@ import requests_random_user_agent
 
 # Function to download the zip file and extract its contents
 def download_excel(url, extract_to='extracted'):
-    response = requests.get(url, headers = headers)
+    response = requests.get(url)
     if response.status_code == 200:
         with zipfile.ZipFile(io.BytesIO(response.content)) as z:
             z.extractall(extract_to)
