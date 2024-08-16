@@ -32,7 +32,7 @@ def extract_crds(directory):
             file_path = os.path.join(directory, filename)
             df = pd.read_excel(file_path)
             if df.shape[1] > 1:
-                crds[filename] = df.iloc[:, 1].tolist()
+                crds[filename] = df[df["Count of Private Funds - 7B(1)"] > 0].iloc[:, 1].tolist()
             else:
                 crds[filename] = None 
     crds = pd.DataFrame(crds[list(crds.keys())[0]] + crds[list(crds.keys())[1]])
