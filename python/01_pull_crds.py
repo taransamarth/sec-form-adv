@@ -7,12 +7,7 @@ import zipfile
 import os
 import io
 from datetime import datetime
-
-# Headers
-headers = {
-    "Accept-Language": "en-US,en;q=0.9,de;q=0.8,fr;q=0.7", 
-    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
-  }
+import time
 
 # Function to download the zip file and extract its contents
 def download_excel(url, extract_to='extracted'):
@@ -39,10 +34,18 @@ def extract_crds(directory):
     return crds
 
 # URL with SEC spreadsheets of (basic) investment manager data
-webpage_url = 'https://www.sec.gov/data-research/sec-markets-data/foiadocsinvafoia' 
+webpage_url = 'https://www.sec.gov/data-research/sec-markets-data/information-about-registered-investment-advisers-exempt-reporting-advisers' 
 
-response = requests.get(webpage_url, headers = headers)
+s = requests.Session()
+response = requests.get(webpage_url)
 soup = BeautifulSoup(response.content, 'html.parser')
+
+while soup(text=re.compile('Automated access')):
+    print("Access blocked... waiting 10 seconds.")
+    s = requests.Session()
+    time.sleep(10)
+    response = requests.get(webpage_url)
+    soup = BeautifulSoup(response.content, 'html.parser')
 
 # Find most recent links to .zip files (for registered and exempt advisers)
 zip_links = [a['href'] for a in soup.find_all('a', href=True) if a['href'].endswith('.zip')][:2]
