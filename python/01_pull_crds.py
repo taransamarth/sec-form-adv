@@ -11,14 +11,14 @@ import time
 import requests_random_user_agent
 
 # Function to download the zip file and extract its contents
-def download_excel(url, extract_to='extracted'):
+def download_excel(url, extract_to='extracted_files'):
     response = requests.get(url)
-    if response.status_code == 200:
-        with zipfile.ZipFile(io.BytesIO(response.content)) as z:
-            z.extractall(extract_to)
-            return z.namelist()
-    else:
-        raise Exception(f"Failed to download file from {url}")
+    print(response.status_code == 200)
+    while(response.status_code != 200):
+        response = requests.get(url)
+    with zipfile.ZipFile(io.BytesIO(response.content)) as z:
+        z.extractall(extract_to)
+        return z.namelist()
 
 # Function to extract the first column of each excel file in a directory
 def extract_crds(directory):
